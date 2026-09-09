@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: cpu-stress
+  labels:
+    app: cpu-stress
+spec:
+  # IMPORTANT: pin to a node that does NOT run the monitoring stack
+  # (Prometheus/Alertmanager). Use a node running only node-exporter / app
+  # workloads. 100% CPU on the monitoring node makes Prometheus probes time
+  # out and the kubelet restarts it.
+  nodeSelector:
+    kubernetes.io/hostname: <NODE_HOSTNAME>
+  containers:
+  - name: cpu-stress
+    image: busybox
+    command: ["sh", "-c", "for i in 1 2 3; do (while :; do :; done) & done; wait"]

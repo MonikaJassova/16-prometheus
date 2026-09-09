@@ -1,0 +1,15 @@
+{
+  "name": "node-project",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "author": "NJ",
+  "license": "ISC",
+  "dependencies": {
+    "@prometheus-io/client": "^0.16.1",
+    "express": "5.2.1"
+  }
+}

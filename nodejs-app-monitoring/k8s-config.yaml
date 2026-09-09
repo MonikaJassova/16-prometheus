@@ -1,0 +1,59 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nodeapp
+  labels:
+    app: nodeapp
+spec:
+  selector:
+    matchLabels:
+      app: nodeapp
+  template:
+    metadata:
+      labels:
+        app: nodeapp
+    spec:
+      imagePullSecrets:
+      - name: my-registry-key
+      containers:
+      - name: nodeapp
+        image: monikajassova/demo-app:nodeapp
+        ports:
+        - containerPort: 3000
+        imagePullPolicy: Always  
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nodeapp
+  labels:
+    app: nodeapp
+spec:
+  type: ClusterIP
+  selector:
+    app: nodeapp
+  ports:
+  - name: service
+    protocol: TCP
+    port: 3000
+    targetPort: 3000
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: monitoring-node-app
+  labels:
+    release: monitoring
+    app: nodeapp
+spec: # to match with an app that produces metrics
+  endpoints:
+  - path: /metrics
+    port: service # name of the Service port
+    targetPort: 3000
+  namespaceSelector:
+    matchNames:
+    - default # find app in this namespace
+  selector:
+    matchLabels:
+      app: nodeapp # find app with this name

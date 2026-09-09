@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: service
-        image: gcr.io/google-samples/microservices-demo/emailservice:v0.8.0
+        image: us-central1-docker.pkg.dev/online-boutique-ci/microservices-demo/emailservice:v0.10.6
         ports:
         - containerPort: 8080 # where app listens on
         env:
@@ -66,7 +66,7 @@ spec:
     spec:
       containers:
       - name: service
-        image: gcr.io/google-samples/microservices-demo/recommendationservice:v0.8.0
+        image: us-central1-docker.pkg.dev/online-boutique-ci/microservices-demo/recommendationservice:v0.10.6
         ports:
         - containerPort: 8080
         env:
@@ -116,7 +116,7 @@ spec:
     spec:
       containers:
       - name: service
-        image: gcr.io/google-samples/microservices-demo/productcatalogservice:v0.8.0
+        image: us-central1-docker.pkg.dev/online-boutique-ci/microservices-demo/productcatalogservice:v0.10.6
         ports:
         - containerPort: 3550
         env:
@@ -164,7 +164,7 @@ spec:
     spec:
       containers:
       - name: service
-        image: gcr.io/google-samples/microservices-demo/paymentservice:v0.8.0
+        image: us-central1-docker.pkg.dev/online-boutique-ci/microservices-demo/paymentservice:v0.10.6
         ports:
         - containerPort: 50051
         env:
@@ -211,7 +211,7 @@ spec:
     spec:
       containers:
       - name: service
-        image: gcr.io/google-samples/microservices-demo/currencyservice:v0.8.0
+        image: us-central1-docker.pkg.dev/online-boutique-ci/microservices-demo/currencyservice:v0.10.6
         ports:
         - containerPort: 7000
         env:
@@ -259,7 +259,7 @@ spec:
     spec:
       containers:
       - name: service
-        image: gcr.io/google-samples/microservices-demo/shippingservice:v0.8.0
+        image: us-central1-docker.pkg.dev/online-boutique-ci/microservices-demo/shippingservice:v0.10.6
         ports:
         - containerPort: 50051
         env:
@@ -304,7 +304,7 @@ spec:
     spec:
       containers:
       - name: service
-        image: gcr.io/google-samples/microservices-demo/adservice:v0.8.0
+        image: us-central1-docker.pkg.dev/online-boutique-ci/microservices-demo/adservice:v0.10.6
         ports:
         - containerPort: 9555
         env:
@@ -357,7 +357,7 @@ spec:
     spec:
       containers:
       - name: service
-        image: gcr.io/google-samples/microservices-demo/cartservice:v0.8.0
+        image: us-central1-docker.pkg.dev/online-boutique-ci/microservices-demo/cartservice:v0.10.6
         ports:
         - containerPort: 7070
         env:
@@ -464,7 +464,7 @@ spec:
     spec:
       containers:
       - name: service
-        image: gcr.io/google-samples/microservices-demo/checkoutservice:v0.8.0
+        image: us-central1-docker.pkg.dev/online-boutique-ci/microservices-demo/checkoutservice:v0.10.6
         ports:
         - containerPort: 5050
         env:
@@ -522,7 +522,7 @@ spec:
     spec:
       containers:
       - name: service
-        image: gcr.io/google-samples/microservices-demo/frontend:v0.8.0
+        image: us-central1-docker.pkg.dev/online-boutique-ci/microservices-demo/frontend:v0.10.6
         ports:
         - containerPort: 8080
         env:
@@ -542,15 +542,23 @@ spec:
           value: "checkoutservice:5050"
         - name: AD_SERVICE_ADDR
           value: "adservice:9555"
+        - name: SHOPPING_ASSISTANT_SERVICE_ADDR
+          value: "shoppingassistantservice:80"
         livenessProbe:
           httpGet:
             path: "/_healthz"
             port: 8080
+            httpHeaders:
+            - name: "Cookie"
+              value: "shop_session-id=x-liveness-probe"
           periodSeconds: 5
         readinessProbe:
           httpGet:
             path: "/_healthz"
             port: 8080
+            httpHeaders:
+            - name: "Cookie"
+              value: "shop_session-id=x-readiness-probe"
           periodSeconds: 5
 
 ---
@@ -558,11 +566,15 @@ apiVersion: v1
 kind: Service
 metadata:
   name: frontend
+  annotations:
+    kubernetes.io/elb.class: union
+    kubernetes.io/elb.autocreate: '{"type":"public","bandwidth_name":"prometheus-frontend-bandwidth","bandwidth_chargemode":"traffic","bandwidth_size":5,"bandwidth_sharetype":"PER","eip_type":"5_bgp"}'
 spec:
   type: LoadBalancer # accepts external requests
   selector:
     app: frontend
   ports:
-  - protocol: TCP
+  - name: http
+    protocol: TCP
     port: 80
     targetPort: 8080
