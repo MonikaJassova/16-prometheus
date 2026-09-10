@@ -13,6 +13,7 @@ spec:
       expr: absent(redis_up) or redis_up == 0
       for: 0m
       labels:
+        namespace: monitoring
         severity: critical
       annotations:
         summary: Redis down (instance {{ $labels.instance }})
@@ -21,6 +22,7 @@ spec:
       expr: redis_connected_clients / redis_config_maxclients * 100 > 90
       for: 2m
       labels:
+        namespace: monitoring
         severity: warning
       annotations:
         summary: Redis too many connections (instance {{ $labels.instance }})

@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: redis-conn-stress
+  labels:
+    app: redis-conn-stress
+spec:
+  containers:
+  - name: stress
+    image: redis:alpine
+    command:
+      - sh
+      - -c
+      - 'for i in $(seq 1 14); do (while true; do printf "PING\r\n"; sleep 10; done | nc redis-cart 6379) & done; wait'

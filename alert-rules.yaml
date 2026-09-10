@@ -14,6 +14,7 @@ spec:
       expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[2m])) * 100) > 50
       for: 2m
       labels:
+        namespace: monitoring
         severity: warning
       annotations:
         description: "CPU load on host is over 50%\n Value = {{ $value }}\n Instance = {{ $labels.instance }}\n"
@@ -22,6 +23,7 @@ spec:
       expr: "kube_pod_container_status_restarts_total > 5 and on(namespace, pod) kube_pod_info > 0"
       for: 0m
       labels:
+        namespace: monitoring
         severity: critical
       annotations:
         description: "Pod {{ $labels.pod }} is crash looping\n Value = {{ $value }}"

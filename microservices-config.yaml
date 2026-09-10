@@ -408,6 +408,7 @@ spec:
       containers:
       - name: redis
         image: redis:alpine
+        command: ["redis-server", "--maxclients", "20"] # to help test too many connections rule
         ports:
         - containerPort: 6379
         livenessProbe:
